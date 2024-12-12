@@ -13,7 +13,7 @@ export default function KeyboardAwareScrollView({
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1, backgroundColor: 'white' }}
+      style={{ flex: 1, backgroundColor: 'white', marginTop: 40 }}
       keyboardVerticalOffset={110}
     >
       <ScrollView
