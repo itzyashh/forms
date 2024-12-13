@@ -4,23 +4,12 @@ import React from 'react';
 import CustomButton from '../../components/CustomButton';
 import { router } from 'expo-router';
 import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
-
-const personalInfo = {
-  fullName: 'Vadim Savin',
-  address: 'Poblenou',
-  city: 'Barcelona',
-  postcode: '1234',
-  phone: '60123123123',
-  country: 'ES',
-};
-
-const paymentInfo = {
-  cardNumber: '1234123412341234',
-  expires: '01/30',
-  cvv: '123',
-};
+import { useCheckoutForm } from '../../contexts/CheckoutFormProvider';
 
 export default function ConfirmForm() {
+  const { personalInfo, paymentInfo } = useCheckoutForm();
+  console.log('personalInfo:', personalInfo);
+  console.log('paymentInfo:', paymentInfo);
   const onNext = () => {
     //validate form
 
@@ -77,7 +66,7 @@ export default function ConfirmForm() {
           </View>
         )}
 
-        <CustomButton title="Submit" onPress={onNext} style={styles.button} />
+        <CustomButton title="Submit" onPress={onNext} />
       </View>
     </KeyboardAwareScrollView>
   );

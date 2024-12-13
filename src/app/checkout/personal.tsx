@@ -1,50 +1,28 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+
 import CustomButton from '../../components/CustomButton';
 import { router } from 'expo-router';
 import CustomTextInput from '../../components/CustomTextInput';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
-import {
-  useForm,
-  SubmitHandler,
-  Controller,
-  FormProvider,
-} from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
-// Define a schema for the form
-const PersonalInfoSchema = z.object({
-  fullName: z
-    .string({ message: 'Full name is required!' })
-    .min(1, { message: 'Full name must be longer than 1' }),
-  address: z.string().min(1, { message: 'Please provide your address!' }),
-  city: z.string().min(1, { message: 'City is required!' }),
-  postcode: z.string().min(1, { message: 'Postal code is required!' }),
-  phone: z.string().min(1, { message: 'Phone is required!' }),
-});
-
-type PersonalInfo = z.infer<typeof PersonalInfoSchema>;
+import {
+  PersonalInfo,
+  PersonalInfoSchema,
+} from '../../contexts/CheckoutFormProvider';
+import { useCheckoutForm } from '../../contexts/CheckoutFormProvider';
 
 export default function PersonalDetailsForm() {
+  const { personalInfo, setPersonalInfo } = useCheckoutForm();
   const form = useForm<PersonalInfo>({
     resolver: zodResolver(PersonalInfoSchema),
+    defaultValues: personalInfo,
   });
 
-  console.log('Errors:', form.formState.errors);
-
   const onNext: SubmitHandler<PersonalInfo> = (data) => {
-    //validate form
-    console.log('Data:', data);
-    //redirect to next page
+    console.log('Données personnelles soumises:', data);
+    setPersonalInfo(data); // Assurez-vous que cette ligne est bien présente
     router.push('/checkout/payment');
   };
   return (
