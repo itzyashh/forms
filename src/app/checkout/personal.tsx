@@ -9,14 +9,14 @@ import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   PersonalInfo,
-  PersonalInfoSchema,
+  personalInfoSchema,
 } from '../../contexts/CheckoutFormProvider';
 import { useCheckoutForm } from '../../contexts/CheckoutFormProvider';
 
 export default function PersonalDetailsForm() {
   const { personalInfo, setPersonalInfo } = useCheckoutForm();
   const form = useForm<PersonalInfo>({
-    resolver: zodResolver(PersonalInfoSchema),
+    // resolver: zodResolver(PersonalInfoSchema),
     defaultValues: personalInfo,
   });
 

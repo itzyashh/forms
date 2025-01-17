@@ -1,65 +1,66 @@
-import { createContext, useContext, PropsWithChildren, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useState } from "react";
+import * as z from "zod";
 
-import * as z from 'zod';
+type FormContextType = {
+    personalInfo?: PersonalInfo;
+    setPersonalInfo: (info: PersonalInfo) => void;
+    paymentInfo?: PaymentInfo;
+    setPaymentInfo: (info: PaymentInfo) => void;
+    consoleLog: (data: any) => void;
+}
 
-// Define a schema for the personal info form
-export const PersonalInfoSchema = z.object({
-  fullName: z
-    .string({ message: 'Full name is required!' })
-    .min(1, { message: 'Full name must be longer than 1' }),
-  address: z.string().min(1, { message: 'Please provide your address!' }),
-  city: z.string().min(1, { message: 'City is required!' }),
-  postcode: z.string().min(1, { message: 'Postal code is required!' }),
-  phone: z.string().min(1, { message: 'Phone is required!' }),
+const CheckoutFormContext = createContext<FormContextType>({
+    setPersonalInfo: () => { },
+    setPaymentInfo: () => { },
+    consoleLog: () => { }
 });
 
-export type PersonalInfo = z.infer<typeof PersonalInfoSchema>;
+export const personalInfoSchema = z.object({
+    name: z.string({ message: 'Name is required' }).min(2).trim(),
+    address: z.string({ message: 'Address is required' }).nonempty(),
+    city: z.string({ message: 'City is required' }).nonempty(),
+    postCode: z.string({ message: 'Post code is required' }).nonempty(),
+    phoneNumber: z.string({ message: 'Phone number is required' }).nonempty(),
+    country: z.string({ message: 'Country is required' }).nonempty(),
+})
+export type PersonalInfo = z.infer<typeof personalInfoSchema>
 
-// Define a schema for the payement form
-export const PaymentInfoSchema = z.object({
-  cardNumber: z.string().length(16, {
-    message: 'Card number is required!',
-  }),
-  expireDate: z.string().regex(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/, {
-    message: 'Expiry date is required!',
-  }),
+export const paymentInfoSchema = z.object({
+    cardNumber: z.coerce.number({ message: 'Card number is required' }),
+    expires: z.string({ message: 'Expires is required' }).regex(new RegExp('^(0[1-9]|1[0-2])\/[0-9]{2}$'), { message: 'Please use the MM/YY format' }),
+    cvv: z.coerce.number({ message: 'CVV is required' }).min(100).max(999),
+})
 
-  cvv: z.coerce.number().min(100, { message: 'Cvv is required!' }).max(999),
-});
+export type PaymentInfo = z.infer<typeof paymentInfoSchema>
 
-export type PaymentInfo = z.infer<typeof PaymentInfoSchema>;
+export default function FormProvider({ children }: PropsWithChildren) {
 
-// Define the context type
-type CheckoutFormContext = {
-  personalInfo: PersonalInfo | undefined;
-  setPersonalInfo: (data: PersonalInfo) => void;
-  paymentInfo: PaymentInfo | undefined;
-  setPaymentInfo: (data: PaymentInfo) => void;
-};
+    const [personalInfo, setPersonalInfo] = useState<PersonalInfo | undefined>();
+    const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | undefined>();
 
-const CheckoutFormContext = createContext<CheckoutFormContext>({
-  personalInfo: undefined,
-  setPersonalInfo: () => {},
-  paymentInfo: undefined,
-  setPaymentInfo: () => {},
-});
+    const consoleLog = (data: any) => {
+        console.log('console log in form provider', data)
+    }
 
-export default function CheckoutFormProvider({ children }: PropsWithChildren) {
-  const [personalInfo, setPersonalInfo] = useState<PersonalInfo>();
-  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
-
-  return (
-    <CheckoutFormContext.Provider
-      value={{
+    return <CheckoutFormContext.Provider value={{
         personalInfo,
         setPersonalInfo,
         paymentInfo,
-        setPaymentInfo,
-      }}
-    >
-      {children}
-    </CheckoutFormContext.Provider>
-  );
+        setPaymentInfo(data) {
+            console.log(data,'setting payment info')
+            setPaymentInfo(data)
+            },
+        consoleLog
+          
+    }}>{children}</CheckoutFormContext.Provider>;
 }
 
-export const useCheckoutForm = () => useContext(CheckoutFormContext);
+export const useCheckoutForm = () => {
+    const context = useContext(CheckoutFormContext);
+    if (!context) {
+        throw new Error('useForm must be used within a FormProvider');
+    }
+    return context;
+}
+
+

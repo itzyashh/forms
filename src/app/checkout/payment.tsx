@@ -8,23 +8,28 @@ import CustomTextInput from '../../components/CustomTextInput';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  PaymentInfoSchema,
+  paymentInfoSchema,
   PaymentInfo,
   useCheckoutForm,
 } from '../../contexts/CheckoutFormProvider';
 
 export default function PaymentDetailsForm() {
-  const { paymentInfo, setPaymentInfo } = useCheckoutForm();
+  const { paymentInfo, setPaymentInfo,consoleLog } = useCheckoutForm();
+
+
   const form = useForm<PaymentInfo>({
-    resolver: zodResolver(PaymentInfoSchema),
-    defaultValues: paymentInfo,
+    // resolver: zodResolver(paymentInfoSchema),
+    // defaultValues: paymentInfo,
   });
 
   const onNext: SubmitHandler<PaymentInfo> = (data) => {
     console.log('Données de paiement soumises:', data);
-    setPaymentInfo(data); // Assurez-vous que cette ligne est bien présente
+    setPaymentInfo(data);
+    console.log('payment info set', data);
+    consoleLog(data);
     router.push('/checkout/confirm');
   };
+
   return (
     <KeyboardAwareScrollView>
       <FormProvider {...form}>

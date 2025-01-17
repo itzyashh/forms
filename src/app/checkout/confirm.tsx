@@ -14,7 +14,6 @@ export default function ConfirmForm() {
     //validate form
 
     //submit data
-
     //redirect to next page
 
     router.dismissAll();
